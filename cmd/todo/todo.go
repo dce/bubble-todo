@@ -71,6 +71,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			item.done = !item.done
 			m.table.SetRows(m.rows())
 			return m, nil
+		case "backspace":
+			if len(m.items) > 0 {
+				idx := m.table.Cursor()
+				m.items = append(m.items[:idx], m.items[idx+1:]...)
+				m.table.SetRows(m.rows())
+
+				if idx > len(m.items)-1 {
+					m.table.SetCursor(idx - 1)
+				}
+			}
+
+			return m, nil
 		case "enter":
 			m.input.Focus()
 			return m, nil
