@@ -67,9 +67,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 		case " ":
-			item := m.items[m.table.Cursor()]
-			item.done = !item.done
-			m.table.SetRows(m.rows())
+			if len(m.items) > 0 {
+				item := m.items[m.table.Cursor()]
+				item.done = !item.done
+				m.table.SetRows(m.rows())
+			}
+
 			return m, nil
 		case "backspace":
 			if len(m.items) > 0 {
@@ -77,7 +80,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.items = append(m.items[:idx], m.items[idx+1:]...)
 				m.table.SetRows(m.rows())
 
-				if idx > len(m.items)-1 {
+				if idx > len(m.items)-1 && idx > 0 {
 					m.table.SetCursor(idx - 1)
 				}
 			}
