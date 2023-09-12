@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -19,6 +20,7 @@ type item struct {
 
 type model struct {
 	table table.Model
+	input textinput.Model
 	items []item
 }
 
@@ -45,7 +47,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.input.Focused() {
+			switch msg.String() {
+			case "enter":
+				m.input.SetValue("")
+				m.input.Blur()
+				return m, nil
+			case "esc":
+				m.input.SetValue("")
+				m.input.Blur()
+				return m, nil
+			default:
+				m.input, cmd = m.input.Update(msg)
+				return m, cmd
+			}
+		}
+
 		switch msg.String() {
+		case "enter":
+			m.input.Focus()
+			return m, nil
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		}
@@ -56,7 +77,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return baseStyle.Render(m.table.View())
+	return m.input.View() + "\n" + baseStyle.Render(m.table.View())
 }
 
 func main() {
@@ -78,7 +99,10 @@ func main() {
 		Bold(false)
 	t.SetStyles(s)
 
-	m := model{t, []item{
+	i := textinput.New()
+	i.Placeholder = "New todo..."
+
+	m := model{t, i, []item{
 		{"One", false},
 		{"Two", true},
 		{"Three", false},
