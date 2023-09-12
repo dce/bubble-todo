@@ -6,7 +6,7 @@ _A Bubble Tea example app_
 
 ```bash
 asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
-asdf install golang 1.19
+asdf install golang 1.19.13
 git clone git@github.com:dce/bubble-todo.git
 cd bubble-todo
 make
