@@ -21,7 +21,7 @@ type item struct {
 type model struct {
 	table table.Model
 	input textinput.Model
-	items []item
+	items []*item
 }
 
 func (m model) Init() tea.Cmd {
@@ -50,6 +50,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.input.Focused() {
 			switch msg.String() {
 			case "enter":
+				m.items = append(m.items, &item{m.input.Value(), false})
+				m.table.SetRows(m.rows())
 				m.input.SetValue("")
 				m.input.Blur()
 				return m, nil
@@ -64,6 +66,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch msg.String() {
+		case " ":
+			item := m.items[m.table.Cursor()]
+			item.done = !item.done
+			m.table.SetRows(m.rows())
+			return m, nil
 		case "enter":
 			m.input.Focus()
 			return m, nil
@@ -102,17 +109,11 @@ func main() {
 	i := textinput.New()
 	i.Placeholder = "New todo..."
 
-	m := model{t, i, []item{
-		{"One", false},
-		{"Two", true},
-		{"Three", false},
-	}}
+	m := model{t, i, []*item{}}
 
 	m.table.SetRows(m.rows())
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		log.Fatal("Error running program:", err)
 	}
-
-	log.Println("Hello!")
 }
