@@ -5,7 +5,12 @@ import (
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
+
+var baseStyle = lipgloss.NewStyle().
+	BorderStyle(lipgloss.NormalBorder()).
+	BorderForeground(lipgloss.Color("240"))
 
 type item struct {
 	name string
@@ -51,7 +56,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return m.table.View()
+	return baseStyle.Render(m.table.View())
 }
 
 func main() {
@@ -65,6 +70,13 @@ func main() {
 		table.WithFocused(true),
 		table.WithHeight(10),
 	)
+
+	s := table.DefaultStyles()
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("57")).
+		Bold(false)
+	t.SetStyles(s)
 
 	m := model{t, []item{
 		{"One", false},
